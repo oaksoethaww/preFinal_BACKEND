@@ -70,3 +70,9 @@ Publish this folder as its own repository. Do not publish `.env.local`, `node_mo
 Strict TODO-only compliance is not established. Existing login, profile, logout, registration, index initialization, bootstrap and rewrite configuration require repairs outside literal TODO areas in this starter. The template uses system fonts because external font downloads failed in this environment. MongoDB connection code, CORS helper and global CSS were restored to their original versions; pooling, CORS customization and setup authorization live in the authentication TODO implementation. Obtain instructor approval for the remaining necessary repairs. The starter dependencies also have known npm audit findings; updating pinned framework manifests needs an instructor-approved exception under a literal TODO-only rule. No route directories were added or moved.
 
 Rewrites reference: https://nextjs.org/docs/app/api-reference/config/next-config-js/rewrites
+
+## Final security and compliance status
+
+Compatible lockfile security updates were applied without changing package.json or the pinned Next.js version. Backend lint/build and the 57-check real Atlas suite passed afterward, including initialization authorization and process-restart persistence. The remaining npm audit result is 8 advisories (7 high, 1 critical), including the pinned Next.js version and its image/CSS dependencies, plus lint-tool dependencies. The reported Next.js fix requires a version outside the current pinned range. Do not treat runtime tests as a clean security audit; get instructor approval for the required manifest upgrades.
+
+The published Git history was checked with Gitleaks and exact matching against saved runtime credentials. No saved credentials, plaintext exam passwords, environment files, dependencies or build output are tracked. Test account passwords must be supplied privately through the ignored environment settings shown above.
