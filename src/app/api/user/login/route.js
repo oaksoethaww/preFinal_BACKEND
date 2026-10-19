@@ -1,0 +1,21 @@
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+import { randomUUID } from 'node:crypto';
+import { endpoint, body, database, fail, json, publicUser } from '@/lib/auth';
+import { ensureIndexes } from '@/lib/ensureIndexes';
+export { OPTIONS } from '@/lib/auth';
+export const POST = endpoint(async req => {
+ const { email, password } = await body(req);
+ if (typeof email !== 'string' || typeof password !== 'string' || !email || !password || password.length > 128) fail(400, 'Email and password are required');
+ if (!process.env.JWT_SECRET) fail(503, 'Configure JWT_SECRET');
+ await ensureIndexes();
+ const db = await database();
+ const user = await db.collection('users').findOne({ email: email.trim().toLowerCase(), status: 'ACTIVE' });
+ if (!user || !await bcrypt.compare(password, user.password)) fail(401, 'Invalid email or password');
+ const sid = randomUUID();
+ const token = jwt.sign({ id: user._id.toString(), sid }, process.env.JWT_SECRET, { expiresIn: '1d', algorithm: 'HS256' });
+ await db.collection('sessions').insertOne({ _id: sid, userId: user._id.toString(), expiresAt: new Date(Date.now() + 86400000) });
+ const response = json({ message: 'Login successful', user: publicUser(user) });
+ response.cookies.set('token', token, { httpOnly: true, sameSite: 'lax', path: '/', maxAge: 86400, secure: process.env.NODE_ENV === 'production' });
+ return response;
+}, null, true);
